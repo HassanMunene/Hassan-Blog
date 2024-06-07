@@ -24,7 +24,7 @@ function Header() {
 					<FaMoon/>
 				</Button>
 				<Link to="/signin">
-					<Button gradientDuoTone="purpleToBlue">
+					<Button gradientDuoTone="purpleToBlue" outline>
 						Signin
 					</Button>
 				</Link>
