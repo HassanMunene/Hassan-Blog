@@ -6,7 +6,14 @@ export const Signup = async(req, res, next) => {
 
 	const {username, email, password} = req.body;
 
-	if (!username || !email || !password) {
+	if (
+		!username || 
+		!email || 
+		!password || 
+		username === "" || 
+		email === "" || 
+		password === ""
+		) {
 		const statusCode = 400;
 		const message = "All fields are required";
 
