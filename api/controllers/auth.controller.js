@@ -55,7 +55,7 @@ export const Signin = async(req, res, next) => {
         const token = jwt.sign({id: validUser._id}, process.env.JWT_SECRET_KEY)
 
         const {password: pass, ...restDetails} = validUser._doc;
-        res.status(200).cookie("access_token", token, {httpOnly: true}).json(restDetails)
+        res.status(200).cookie("access_token", token, {httpOnly: true}).json({...restDetails, success: true, signin: "successful"})
     } catch(err) {
         console.log(err)
         next(err);
