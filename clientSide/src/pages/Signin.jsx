@@ -1,12 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Label, TextInput, Alert, Spinner } from 'flowbite-react';
 import {useState} from "react";
+import { useSelector, useDispatch } from 'react-redux';
+import { signInStart, signInFailure, signInSuccess } from "../redux/user/userSlice";
 
 function Signin() {
 	const [formData, setFormData] = useState({});
-	const [errorMessage, setErrorMessage] = useState(null);
-	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
+	const {loading, error} = useSelector((state) => state.user);
 
 	function handleChange (e) {
 		setFormData({...formData, [e.target.id]:e.target.value.trim()});
@@ -15,11 +17,10 @@ function Signin() {
 		e.preventDefault();
 
 		if (!formData.email || !formData.password) {
-			return setErrorMessage("Please fill all the fields");
+			return dispatch(signInFailure("Please fill all the fields"));
 		}
 		try {
-			setLoading(true);
-			setErrorMessage(null);
+			dispatch(signInStart());
 			const response = await fetch('/api/auth/signin', {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
@@ -28,16 +29,15 @@ function Signin() {
 			const responseData = await response.json();
 			console.log(responseData);
 			if (responseData.success == false) {
-				setErrorMessage(responseData.message);
+				dispatch(signInFailure(responseData.message));
 			}
-			setLoading(false)
 			if (responseData.success == true) {
+				dispatch(signInSuccess(responseData));
 				navigate('/');
 			}
 		} catch(error) {
 			console.log(error);
-			setLoading(false);
-			setErrorMessage(error.message);
+			dispatch(signInFailure(error.message));
 		}
 	}
 
@@ -97,8 +97,8 @@ function Signin() {
 	              			Sign Up
 	            		</Link>
 	            	</div>
-	            	{errorMessage && (
-	            		<Alert className="mt-5" color="failure">{errorMessage}</Alert>
+	            	{error && (
+	            		<Alert className="mt-5" color="failure">{error}</Alert>
 	            	)}
 	        	</div>
 	        </div>
