@@ -7,8 +7,9 @@ export const test = (req, res) => {
 }
 
 export const UpdateUser = async (req, res, next) => {
-    console.log(req.user.user_id, req.params.userId);
     if (req.user.user_id != req.params.userId) {
+        console.log("The ids are not the same the one in cookie and the one in parameter");
+        console.log(req.user.user_id, req.params.userId)
         return next(errorHandler(403, "You are not authorized to update this user"));
     }
     if (req.body.password) {

@@ -1,19 +1,24 @@
-import {useSelector} from "react-redux";
-import {TextInput, Button, Alert} from "flowbite-react";
+import {useSelector, useDispatch} from "react-redux";
+import {TextInput, Button, Alert, Spinner} from "flowbite-react";
 import {useRef, useState, useEffect} from 'react';
 import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
 import {app} from "../firebase";
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import {updateUserStart, updateUserSuccess, updateUserFailure} from "../redux/user/userSlice";
 
 function DashboardProfile () {
-    const {user: currentUser} = useSelector((state) => state.user);
+    const {user: currentUser, loading, error} = useSelector((state) => state.user);
     const imageSelectorRef = useRef();
     const [image, setImage] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
     const [imageUploading, setImageUploading] = useState(false);
     const [imageUploadError, setImageUploadError] = useState(null);
     const [imageUploadProgress, setImageUploadProgress] = useState(null);
+    const [formData, setFormData] = useState({});
+    const dispatch = useDispatch();
+    const [userUpdateError, setUserUpdateError] = useState(null);
+    const [userUpdateSuccess, setUserUpdateSuccess] = useState(null);
 
     const handleImageChange = (e) => {
         const image = e.target.files[0];
@@ -50,17 +55,53 @@ function DashboardProfile () {
             () => {
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                     setImageUrl(downloadURL);
+                    setFormData({...formData, profilePicture: downloadURL});
                     setImageUploading(false);
                     setImageUploadError(null);
                 });
             }
         )
     }
+    const handleChange = (e) => {
+        setFormData({...formData, [e.target.id]: e.target.value});
+    }
+    const handleSubmit = async(e) => {
+        e.preventDefault();
+        setUserUpdateError(null);
+        setUserUpdateSuccess(null);
+        if (Object.keys(formData).length == 0) {
+            setUserUpdateError("No changes made");
+            return;
+        }
+        if (imageUploading) {
+            setUserUpdateError("Please wait for image to upload");
+            return;
+        }
+        try {
+            dispatch(updateUserStart());
+            const response = await fetch(`/api/user/update/${currentUser._id}`, {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(formData),
+            })
+            const responseData = await response.json();
+            if (responseData.success == false) {
+                dispatch(updateUserFailure(responseData.message));
+                setUserUpdateError(responseData.message);
+            } else {
+                dispatch(updateUserSuccess(responseData));
+                setUserUpdateSuccess("User profile updated successfully");
+            }
+        } catch(error) {
+            dispatch(updateUserFailure(error.message));
+            setUserUpdateError(error.message);
+        }
+    }
 
     return (
         <div className="max-w-lg mx-auto p-3 w-full">
             <h1 className='my-7 text-center font-semibold text-3xl'>Profile</h1>
-            <form className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <input type="file" accept="image/*" ref={imageSelectorRef} onChange={handleImageChange} className="hidden"/>
                 <div className="relative w-32 h-32 self-center cursor-pointer shadow-md overflow-hidden rounded-full" 
                     onClick={() => imageSelectorRef.current.click()}>
@@ -90,15 +131,35 @@ function DashboardProfile () {
                     />
                 </div>
                 {imageUploadError && (<Alert color='failure'>{imageUploadError}</Alert>)}
-                <TextInput type='text' id='username' placeholder='username' defaultValue={currentUser.username} />
-                <TextInput type='email' id='email' placeholder='email' defaultValue={currentUser.email} />
-                <TextInput type='password' id='password' placeholder='password' />
-                <Button type="submit" gradientDuoTone='purpleToBlue' outline>Update</Button> 
+                <TextInput type='text' id='username' placeholder='username' defaultValue={currentUser.username} onChange={handleChange} />
+                <TextInput type='email' id='email' placeholder='email' defaultValue={currentUser.email} onChange={handleChange}/>
+                <TextInput type='password' id='password' placeholder='password' onChange={handleChange}/>
+                <Button type="submit" disabled={loading || imageUploading} gradientDuoTone='purpleToBlue' outline>
+                    {loading ? (
+                        <>
+                            <Spinner size='sm' />
+                            <span className="pl-3">Loading...</span>
+                        </>
+                        ): (
+                        'Update'
+                        )
+                    }
+                </Button> 
             </form>
             <div className='text-red-500 flex justify-between mt-5'>
                 <span className='cursor-pointer'>Delete Account</span>
                 <span className='cursor-pointer'>Sign Out</span>
             </div>
+            {userUpdateSuccess && (
+                <Alert color='success' className='mt-5'>
+                    {userUpdateSuccess}
+                </Alert>
+            )}
+            {userUpdateError && (
+                <Alert color='failure' className='mt-5'>
+                    {userUpdateError}
+                </Alert>
+            )}
         </div>
     );
 }
