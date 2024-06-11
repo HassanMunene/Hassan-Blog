@@ -51,7 +51,7 @@ export const Signin = async(req, res, next) => {
         if (!validPassword) {
             return next(errorHandler(400, "Invalid user credentials"));
         }
-        const token = jwt.sign({user_id: validUser._id}, process.env.JWT_SECRET_KEY)
+        const token = jwt.sign({user_id: validUser._id, isAdmin: validUser.isAdmin}, process.env.JWT_SECRET_KEY)
 
         const {password: pass, ...restDetails} = validUser._doc;
         res.status(200).cookie("access_token", token, {httpOnly: true}).json({...restDetails, success: true, signin: "successful"})
@@ -63,14 +63,13 @@ export const Signin = async(req, res, next) => {
 
 export const GoogleOAuth = async(req, res, next) => {
     const {name, email, googlePhotoUrl} = req.body;
-
     try {
         const user = await User.findOne({email});
         if (user) {
-            const token = jwt.sign({user_id: user._id}, process.env.JWT_SECRET_KEY);
+            const token = jwt.sign({user_id: user._id, isAdmin: user.isAdmin}, process.env.JWT_SECRET_KEY);
             const {password: pass, ...rest} = user._doc;
-            restDetails = {...rest, success: true}
-            res.status(200).cookie('access_token', token, {httpOnly: true}).json(resDetails)
+            const restDetails = {...rest, success: true}
+            res.status(200).cookie('access_token', token, {httpOnly: true}).json(restDetails)
         } else {
             const generatedPassword = Math.random().toString(36).slice(-8);
             const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
@@ -83,12 +82,13 @@ export const GoogleOAuth = async(req, res, next) => {
                 profilePicture: googlePhotoUrl,
             });
             await newUser.save()
-            const token = jwt.sign({user_id: newUser._id}, process.env.JWT_SECRET_KEY);
+            const token = jwt.sign({user_id: newUser._id, isAdmin: newUser.isAdmin}, process.env.JWT_SECRET_KEY);
             const {password: pass, ...rest} = newUser._doc;
-            restDetails = {...rest, success: true};
-            res.status(200).cookie('access_token', token, {httpOnly: true}).json(resDetails);
+            const restDetails = {...rest, success: true};
+            res.status(200).cookie('access_token', token, {httpOnly: true}).json(restDetails);
         }
-    } catch(err) {
-        next(err);
+    } catch(error) {
+        console.log(error)
+        next(error.message);
     }
 }

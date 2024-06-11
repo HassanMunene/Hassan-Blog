@@ -17,7 +17,7 @@ function OAuth() {
 
         try {
             const resultsFromGoogle = await signInWithPopup(auth, provider)
-            const responseData = await fetch('/api/auth/google', {
+            const response = await fetch('/api/auth/google', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -26,9 +26,9 @@ function OAuth() {
                     googlePhotoUrl: resultsFromGoogle.user.photoURL,
                 }),
             })
-            const data = await responseData.json()
+            const responseData = await response.json()
             if (responseData.success == true){
-                dispatch(signInSuccess(data))
+                dispatch(signInSuccess(responseData));
                 navigate('/')
             }
         } catch (error) {
