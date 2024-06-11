@@ -52,3 +52,19 @@ export const UpdateUser = async (req, res, next) => {
         next(err.message);
     }
 }
+
+export const deleteUser = async (req, res, next) => {
+    if (req.user.user_id !== req.params.userId) {
+        console.log("The id in the param and cookie are not the same");
+        return next(errorHandler(400, "You are not authorised to delete this account"));
+    }
+    try {
+        const deletedUser = await User.findByIdAndDelete(req.params.userId);
+        if (!deletedUser) {
+            return next(errorHandler(404, "User not found"))
+        }
+        res.status(200).json({message:"User deleted successfully", success: true});
+    } catch(error) {
+        next(errorHandler(500, error.message));
+    }
+}

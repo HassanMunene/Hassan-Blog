@@ -39,14 +39,13 @@ export const Signup = async(req, res, next) => {
 export const Signin = async(req, res, next) => {
     const {email, password} = req.body
     if (!email || !password || !email.trim() || !password.trim()) {
-        next(errorHandler(400, "All fields are required"))
+        return next(errorHandler(400, "All fields are required"))
     }
-
     try {
         //check If user exist
         const validUser = await User.findOne({email});
         if (!validUser) {
-            return next(errorHandler(400, "Invalid user credentials"))
+            return next(errorHandler(400, "No user with that Email. You should Sign up"))
         }
         const validPassword = bcryptjs.compareSync(password, validUser.password);
         if (!validPassword) {
