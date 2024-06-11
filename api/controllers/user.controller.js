@@ -68,3 +68,11 @@ export const deleteUser = async (req, res, next) => {
         next(errorHandler(500, error.message));
     }
 }
+
+export const signOutUser = async (req, res, next) => {
+    try {
+        res.clearCookie("access_token").status(200).json({message: "User sign out successful", success: true});
+    } catch(error) {
+        next(errorHandler(500, "Sign out not successful"))
+    }
+}
