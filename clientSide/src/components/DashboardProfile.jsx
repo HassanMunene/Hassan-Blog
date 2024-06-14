@@ -15,6 +15,7 @@ import {
     signOutSuccess,
 } from "../redux/user/userSlice";
 import { HiOutlineExclamationCircle } from "react-icons/hi2";
+import {Link} from "react-router-dom";
 
 function DashboardProfile () {
     const {user: currentUser, loading, error} = useSelector((state) => state.user);
@@ -189,7 +190,14 @@ function DashboardProfile () {
                         'Update'
                         )
                     }
-                </Button> 
+                </Button>
+                {currentUser.isAdmin && (
+                    <Link to="/create-post">
+                        <Button type="button" className="w-full" gradientDuoTone='purpleToPink'>
+                            Create post
+                        </Button>
+                    </Link>
+                )}
             </form>
             <div className='text-red-500 flex justify-between mt-5'>
                 <span onClick={() => setShowModal(true)} className='cursor-pointer'>Delete Account</span>

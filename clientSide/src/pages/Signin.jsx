@@ -18,7 +18,7 @@ function Signin() {
 		e.preventDefault();
 
 		if (!formData.email || !formData.password) {
-			return dispatch(signInFailure("Please fill all the fields"));
+			return dispatch(signInFailure("All fields must be filled or Continue with Google"));
 		}
 		try {
 			dispatch(signInStart());
