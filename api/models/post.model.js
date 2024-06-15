@@ -24,6 +24,10 @@ const PostSchema = mongoose.Schema(
             required: true,
             unique: true,
         },
+        category: {
+            type: String,
+            default: "uncategorized",
+        }
     },
 	{timestamps: true}
 );
