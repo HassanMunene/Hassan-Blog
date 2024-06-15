@@ -1,8 +1,62 @@
-import {TextInput, Select, Button, FileInput} from "flowbite-react"
+import {TextInput, Select, Button, FileInput, Alert} from "flowbite-react"
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import {useState} from "react";
+import {getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
+import {app} from "../firebase";
 
 function CreatePost() {
+    const [image, setImage] = useState(null);
+    const [imageUrl, setImageUrl] = useState(null);
+    const [formData, setFormData] = useState({});
+    const [imageUploading, setImageUploading] = useState(false);
+    const [imageUploadError, setImageUploadError] = useState(null);
+    const [imageUploadProgress, setImageUploadProgress] = useState(null);
+    const [imageUploadSuccess, setImageUploadSuccess] = useState(false);
+
+    const handleImageChange = (e) => {
+        const image = e.target.files[0];
+        if (image) {
+             setImage(image);
+         }
+     };
+    const handleUploadImage = async() => {
+        if (!image) {
+            setImageUploadError("Please select and image");
+            return;
+        }
+        setImageUploading(true);
+        setImageUploadError(false);
+        setImageUploadSuccess(false);
+        const storage = getStorage(app);
+        const imageName = new Date().getTime() + image.name;
+        const storageRef = ref(storage, imageName);
+        const uploadTask = uploadBytesResumable(storageRef, image);
+        uploadTask.on('state_changed',
+             (snapshot) => {
+                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                 setImageUploadProgress(progress.toFixed(0));
+             },
+             (error) => {
+                 setImageUploadError('Image upload failer. Try again');
+                 setImageUploadProgress(null);
+                 setImageUploading(false);
+                 setImage(null);
+                 setImageUrl(null);
+                 setImageUploadSuccess(false);
+             },
+             () => {
+                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                     setImageUrl(downloadURL);
+                     setFormData({...formData, image: downloadURL});
+                     setImageUploading(false);
+                     setImageUploadError(null);
+                     setImageUploadSuccess(true);
+                 });
+             }
+         )
+    }
+
     return (
         <div className="p-3 max-w-3xl mx-auto min-h-screen">
             <h1 className="text-center text-3xl my-7 font-semibold">Create a post</h1>
@@ -19,11 +73,21 @@ function CreatePost() {
                     </Select>
                 </div>
                 <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
-                    <FileInput type='file' accept='image/*' />
-                    <Button type='button' gradientDuoTone='purpleToBlue' size='sm' outline>
-                        Upload image
+                    <FileInput type='file' accept='image/*' onChange={handleImageChange}/>
+                    <Button type='button' disabled={imageUploading} gradientDuoTone='purpleToBlue' 
+                        size='sm' outline onClick={handleUploadImage}
+                    >
+                        {imageUploading ? "Uploading...": "Upload"}
                     </Button>
                 </div>
+                {imageUploadError && (
+                 <Alert color='failure'>
+                    {imageUploadError}
+                 </Alert>
+                )}
+                {formData.image && (
+                    <img src={formData.image} alt="postImage" className="w-full h-72 object-cover" />
+                )}
                 <ReactQuill theme='snow' placeholder='Write something...' className='h-72 mb-12' required />
                 <Button type='submit' gradientDuoTone='purpleToPink'>
                     Publish
