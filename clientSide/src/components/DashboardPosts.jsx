@@ -1,11 +1,12 @@
 import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
-import {Table} from "flowbite-react";
+import {Table, Button} from "flowbite-react";
 import {Link} from "react-router-dom";
 
 function DashboardPosts() {
     const {user: currentUser} = useSelector((state) => state.user);
     const [userPosts, setUserPosts] = useState([]);
+    const [showMore, setShowMore] = useState(true);
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -14,6 +15,9 @@ function DashboardPosts() {
                 const responseData = await response.json();
                 if (responseData.success == true) {
                     setUserPosts(responseData.posts)
+                    if (responseData.posts.length < 8) {
+                        setShowMore(false);
+                    }
                 }
             } catch(error) {
                 console.log(error);
@@ -23,7 +27,22 @@ function DashboardPosts() {
             fetchPosts();
         }
     }, [currentUser._id]);
-    console.log(userPosts);
+
+    const handleShowMore = async () => {
+        const startIndex = userPosts.length;
+        try {
+            const response = await fetch(`/api/post/get-posts?authorId=${currentUser._id}&startIndex=${startIndex}`);
+            const responseData = await response.json();
+            if (responseData.success == true) {
+                setUserPosts((prev) => [...prev, ...responseData.posts]);
+                if (responseData.posts.length < 8) {
+                    setShowMore(false);
+                }
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+  };
     return (
         <div className='table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
             {currentUser.isAdmin && userPosts.length > 0 ? (
@@ -68,6 +87,11 @@ function DashboardPosts() {
                             </Table.Body>
                         ))}
                     </Table>
+                    {showMore && (
+                        <button onClick={handleShowMore} className='w-full text-teal-500 self-center text-sm py-7'>
+                            Show more
+                        </button>
+                    )}
                 </>
             ) : (<p>You have no posts yet!</p>)}
         </div>

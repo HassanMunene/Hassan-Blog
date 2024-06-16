@@ -105,6 +105,8 @@ function CreatePost() {
                         <option value='nodejs'>Node.js</option>
                         <option value="networking">Networking</option>
                         <option value="python">Python</option>
+                        <option value="data_structures">Data structures & Algorithms</option>
+                        <option value="life-skills">Life Skills</option>
                     </Select>
                 </div>
                 <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
