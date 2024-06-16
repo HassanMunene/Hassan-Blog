@@ -28,7 +28,7 @@ export const createPost = async(req, res, next) => {
 export const getPosts = async(req, res, next) => {
     try {
         const startIndex = parseInt(req.query.startIndex) || 0;
-        const limit = parseInt(req.query.limit) || 9;
+        const limit = parseInt(req.query.limit) || 8;
         const sortDirection = req.query.order === "asc" ? 1 : -1;
         const posts = await Post.find({
             ...(req.query.authorId && {authorId: req.query.authorId}),
@@ -42,8 +42,6 @@ export const getPosts = async(req, res, next) => {
                 ],
             }),
         }).sort({updatedAt: sortDirection}).skip(startIndex).limit(limit);
-
-        console.log(posts);
         const totalPosts = await Post.countDocuments();
         const now = new Date();
         const oneMonthAgo = new Date(
@@ -63,5 +61,19 @@ export const getPosts = async(req, res, next) => {
     } catch(error) {
         console.log(error);
         next(errorHandler(500, error.message));
+    }
+}
+
+export const deletePost = async(req, res, next) => {
+    console.log(req.user)
+    if (!req.user.isAdmin || req.user.user_id !== req.params.authorId) {
+        return next(errorHandler(403, "You are not authorised to delete this post"));
+    }
+    try {
+        await Post.findByIdAndDelete(req.params.postId);
+        res.status(200).json({message: 'Post has been deleted successfully', success: true});
+    } catch(error) {
+        console.log(error);
+        next(errorHandler(500, error.message))
     }
 }
