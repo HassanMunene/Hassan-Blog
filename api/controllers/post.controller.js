@@ -65,7 +65,6 @@ export const getPosts = async(req, res, next) => {
 }
 
 export const deletePost = async(req, res, next) => {
-    console.log(req.user)
     if (!req.user.isAdmin || req.user.user_id !== req.params.authorId) {
         return next(errorHandler(403, "You are not authorised to delete this post"));
     }
@@ -77,3 +76,27 @@ export const deletePost = async(req, res, next) => {
         next(errorHandler(500, error.message))
     }
 }
+
+export const updatePost = async(req, res, next) => {
+    if (!req.user.isAdmin || req.user.user_id !== req.params.authorId) {
+        return next(errorHandler(403, "You are not allowed to update this post"));
+    }
+    try {
+        const updatedPost = await Post.findByIdAndUpdate(
+            req.params.postId,
+            {
+                $set: {
+                    title: req.body.title,
+                    content: req.body.content,
+                    category: req.body.category,
+                    image: req.body.image,
+                }
+            },
+            {new: true}
+        );
+        res.status(200).json({...updatedPost._doc, success: true});
+    } catch(error) {
+        console.log(error);
+        next(errorHandler(500, error.message));
+    }
+};
