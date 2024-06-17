@@ -5,6 +5,7 @@ import {useState, useEffect} from 'react';
 import {useDispatch} from "react-redux";
 import {signOutSuccess} from "../redux/user/userSlice";
 import {useSelector} from "react-redux";
+import { FaUsers } from "react-icons/fa6";
 
 function DashboardSidebar () {
     const [tab, setTab] = useState('');
@@ -52,6 +53,11 @@ function DashboardSidebar () {
                             <Sidebar.Item active={tab === 'posts'} icon={HiDocumentText} as='div'>
                                 Posts
                             </Sidebar.Item>
+                        </Link>
+                    )}
+                    {currentUser.isAdmin && (
+                        <Link to="/dashboard?tab=users">
+                            <Sidebar.Item active={tab === 'users'} icon={FaUsers} as='div'>Users</Sidebar.Item>
                         </Link>
                     )}
                     <Sidebar.Item onClick={handleSignout} icon={HiArrowSmRight} className='cursor-pointer'>Sign out</Sidebar.Item> 

@@ -54,7 +54,7 @@ export const UpdateUser = async (req, res, next) => {
 }
 
 export const deleteUser = async (req, res, next) => {
-    if (req.user.user_id !== req.params.userId) {
+    if (!req.user.isAdmin || req.user.user_id !== req.params.userId) {
         console.log("The id in the param and cookie are not the same");
         return next(errorHandler(400, "You are not authorised to delete this account"));
     }
@@ -65,6 +65,7 @@ export const deleteUser = async (req, res, next) => {
         }
         res.status(200).json({message:"User deleted successfully", success: true});
     } catch(error) {
+        console.log(error);
         next(errorHandler(500, error.message));
     }
 }
@@ -106,6 +107,7 @@ export const getUsers = async (req, res, next) => {
             users: userWithoutPassword,
             totalUsers: totalUsers,
             lastMonthUsers: lastMonthUsers,
+            success: true,
         });
     } catch(error) {
         next(errorHandler(500, error.message));
