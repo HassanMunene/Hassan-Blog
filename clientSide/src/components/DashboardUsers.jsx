@@ -11,17 +11,23 @@ function DashboardUsers() {
     const [showMore, setShowMore] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [userIdToDelete, setUserIdToDelete] = useState('');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
+                setLoading(true);
                 const response = await fetch(`/api/user/get-users`);
                 const responseData = await response.json();
                 if (responseData.success == true) {
+                    setLoading(false);
                     setUsers(responseData.users)
                     if (responseData.users.length < 8) {
                         setShowMore(false);
                     }
+                }
+                if (responseData.success == false) {
+                    setLoading(false)
                 }
             } catch(error) {
                 console.log(error);
@@ -58,7 +64,7 @@ function DashboardUsers() {
             if (responseData.success == true) {
                 setUsers((prev) => prev.filter((user) => user._id !== userIdToDelete))
             } else {
-                console.log(responseData.message);
+                console.log(responseData);
                 return;
             }
         } catch(error) {
