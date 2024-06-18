@@ -3,6 +3,7 @@ import {useSelector} from "react-redux";
 import {Table, Button, Modal} from "flowbite-react";
 import {Link} from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi2";
+import { FaCheck, FaTimes } from "react-icons/fa";
 
 function DashboardUsers() {
     const {user: currentUser} = useSelector((state) => state.user);
@@ -12,7 +13,7 @@ function DashboardUsers() {
     const [userIdToDelete, setUserIdToDelete] = useState('');
 
     useEffect(() => {
-        const fetchPosts = async () => {
+        const fetchUsers = async () => {
             try {
                 const response = await fetch(`/api/user/get-users`);
                 const responseData = await response.json();
@@ -27,7 +28,7 @@ function DashboardUsers() {
             }
         }
         if (currentUser.isAdmin) {
-            fetchPosts();
+            fetchUsers();
         }
     }, [currentUser._id]);
 
@@ -50,7 +51,7 @@ function DashboardUsers() {
     const handleDeleteUser = async() => {
         setShowModal(false);
         try {
-            const response = await fetch(`/api/user/delete/${userIdToDelete}`, {
+            const response = await fetch(`/api/user/delete-user/${userIdToDelete}`, {
                 method: "DELETE",
             });
             const responseData = await response.json();
@@ -73,6 +74,7 @@ function DashboardUsers() {
                             <Table.HeadCell>Date created</Table.HeadCell>
                             <Table.HeadCell>User image</Table.HeadCell>
                             <Table.HeadCell>Username</Table.HeadCell>
+                            <Table.HeadCell>Email</Table.HeadCell>
                             <Table.HeadCell>Admin</Table.HeadCell>
                             <Table.HeadCell>Delete</Table.HeadCell>
                         </Table.Head>
@@ -83,17 +85,18 @@ function DashboardUsers() {
                                         {new Date(user.createdAt).toLocaleDateString()}
                                     </Table.Cell>
                                     <Table.Cell>
-                                        <Link to={`/user/${user.username}`}>
-                                            <img src={user.profilePicture} alt={user.username} 
-                                                className='w-20 h-10 object-cover bg-gray-500' />
-                                        </Link>
+                                        <img src={user.profilePicture} alt={user.username}  
+                                            className='w-10 h-10 rounded-full object-cover bg-gray-500' />
                                     </Table.Cell>
+                                    <Table.Cell>{user.username}</Table.Cell>
+                                    <Table.Cell>{user.email}</Table.Cell>
                                     <Table.Cell>
-                                        <Link className='font-medium text-gray-900 dark:text-white' to={`/user/${user.username}`}>
-                                            {user.username}
-                                        </Link>
+                                        {user.isAdmin ? (
+                                            <FaCheck className="text-green-500"/>
+                                        ): (
+                                            <FaTimes className="text-red-500"/>
+                                        )}
                                     </Table.Cell>
-                                    <Table.Cell>{user.isAdmin ? "yes": "No"}</Table.Cell>
                                     <Table.Cell>
                                         <span onClick={() => {setShowModal(true); setUserIdToDelete(user._id)}}
                                             className='font-medium text-red-500 hover:underline cursor-pointer'>
