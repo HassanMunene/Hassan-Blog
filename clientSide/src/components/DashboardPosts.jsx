@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
-import {Table, Button, Modal} from "flowbite-react";
+import {Table, Button, Modal, Spinner} from "flowbite-react";
 import {Link} from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi2";
 
@@ -10,19 +10,25 @@ function DashboardPosts() {
     const [showMore, setShowMore] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [postIdToDelete, setPostIdToDelete] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchPosts = async () => {
+            setLoading(true);
             try {
                 const response = await fetch(`/api/post/get-posts?authorId=${currentUser._id}`);
                 const responseData = await response.json();
                 if (responseData.success == true) {
+                    setLoading(false);
                     setUserPosts(responseData.posts)
                     if (responseData.posts.length < 8) {
                         setShowMore(false);
                     }
                 }
             } catch(error) {
+                setLoading(false);
+                setError(error.message);
                 console.log(error);
             }
         }
@@ -64,6 +70,14 @@ function DashboardPosts() {
             console.log(error);
         }
     }
+    if (loading) {
+        return (
+            <div className="flex mx-auto justify-center items-center min-h-screen">
+                <Spinner size="xl"/>
+            </div>
+        )
+    }
+
     return (
         <div className='table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
             {currentUser.isAdmin && userPosts.length > 0 ? (

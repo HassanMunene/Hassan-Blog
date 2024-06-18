@@ -1,6 +1,7 @@
 import {useParams, Link} from "react-router-dom";
 import {useState, useEffect} from "react";
-import {Spinner, Button} from "flowbite-react"
+import {Spinner, Button} from "flowbite-react";
+import CommentSection from "../components/CommentSection";
 
 function PostPage () {
     const [loading, setLoading] = useState(true);
@@ -54,7 +55,11 @@ function PostPage () {
                 <span className='italic'>{post && (post.content.length / 1000).toFixed(0)} mins read</span>
             </div>
             <div className='p-3 max-w-2xl mx-auto w-full post-content' 
-                dangerouslySetInnerHTML={{ __html: post && post.content }}></div>
+                dangerouslySetInnerHTML={{ __html: post && post.content }}>
+            </div>
+            <div>
+                <CommentSection />
+            </div>
         </main>
     )
 }

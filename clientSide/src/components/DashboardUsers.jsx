@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
-import {Table, Button, Modal} from "flowbite-react";
+import {Table, Button, Modal, Spinner} from "flowbite-react";
 import {Link} from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi2";
 import { FaCheck, FaTimes } from "react-icons/fa";
@@ -12,11 +12,13 @@ function DashboardUsers() {
     const [showModal, setShowModal] = useState(false);
     const [userIdToDelete, setUserIdToDelete] = useState('');
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
                 setLoading(true);
+                setError(null);
                 const response = await fetch(`/api/user/get-users`);
                 const responseData = await response.json();
                 if (responseData.success == true) {
@@ -27,9 +29,12 @@ function DashboardUsers() {
                     }
                 }
                 if (responseData.success == false) {
+                    setError("An error occurred fetching users");
                     setLoading(false)
                 }
             } catch(error) {
+                setLoading(false);
+                setError(error.message);
                 console.log(error);
             }
         }
@@ -71,6 +76,14 @@ function DashboardUsers() {
             console.log(error);
         }
     }
+    if (loading) {
+        return (
+            <div className="flex mx-auto justify-center items-center min-h-screen">
+                <Spinner size="xl"/>
+            </div>
+        )
+    }
+
     return (
         <div className='table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
             {currentUser.isAdmin && users.length > 0 ? (
