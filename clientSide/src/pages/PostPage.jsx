@@ -58,7 +58,7 @@ function PostPage () {
                 dangerouslySetInnerHTML={{ __html: post && post.content }}>
             </div>
             <div>
-                <CommentSection />
+                <CommentSection postId={post._id}/>
             </div>
         </main>
     )

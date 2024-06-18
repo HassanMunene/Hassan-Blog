@@ -1,12 +1,35 @@
 import {useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {useState} from "react";
-import {Button, Textarea} from "flowbite-react";
+import {Button, Textarea, Alert} from "flowbite-react";
 
-function CommentSection () {
+function CommentSection ({postId}) {
     const [comment, setComment] = useState('');
     const {user: currentUser} = useSelector((state) => state.user);
+    const [commentError, setCommentError] = useState(null);
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (comment.length > 300) {
+            return;
+        }
+        try {
+            const response = await fetch("/api/comment/create-comment", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({content: comment, postId: postId, userId: currentUser._id})
+            });
+            const responseData = await response.json();
+            if (responseData.success == true) {
+                setComment('');
+                setCommentError(null);
+            }
+        } catch(error) {
+            setCommentError(error.message);
+        }
+    }
     return (
         <div className="max-w-2xl mx-auto w-full p-3">
             {currentUser ? (
@@ -23,7 +46,7 @@ function CommentSection () {
             )}
 
             {currentUser && (
-                <form className="border border-teal-500 rounded-md p-3">
+                <form onSubmit={handleSubmit} className="border border-teal-500 rounded-md p-3">
                     <Textarea
                         placeholder="Add a comment..." 
                         rows="3" 
@@ -32,9 +55,12 @@ function CommentSection () {
                         value={comment}
                     />
                     <div className='flex justify-between items-center mt-5'>
-                        <p className='text-gray-500 text-xs'>{200 - comment.length} characters remaining</p>
+                        <p className='text-gray-500 text-xs'>{300 - comment.length} characters remaining</p>
                         <Button outline gradientDuoTone='purpleToBlue' type='submit'>Submit</Button>
                     </div>
+                    {commentError && (
+                        <Alert color="failure" className="mt-5">{commentError}</Alert>
+                    )}
                 </form>
             )}
         </div>
