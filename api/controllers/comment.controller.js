@@ -51,3 +51,23 @@ export const likeComment = async (req, res, next) => {
         next(errorHandler(500, error.message));
     }
 }
+
+export const editComment = async (req, res, next) => {
+    try {
+        const comment = await Comment.findById(req.params.commentId);
+        if (!comment) {
+            return next(errorHandler(404, 'Comment not found'));
+        }
+        if (comment.userId !== req.user.user_id && req.user.isAdmin == false) {
+            return next(errorHandler(403, 'You are not authorised to Edit this comment'));
+        }
+
+        const editedComment = await Comment.findByIdAndUpdate(req.params.commentId, {
+            content: req.body.content
+        }, {new: true})
+        res.status(200).json({editedComment: editedComment, success: true});
+    } catch(error) {
+        console.log(error);
+        next(errorHandler(500, error.message));
+    }
+}
