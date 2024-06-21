@@ -6,6 +6,8 @@ import {useDispatch} from "react-redux";
 import {signOutSuccess} from "../redux/user/userSlice";
 import {useSelector} from "react-redux";
 import { FaUsers } from "react-icons/fa6";
+import { HiAnnotation } from "react-icons/hi";
+import { HiChartPie } from "react-icons/hi";
 
 function DashboardSidebar () {
     const [tab, setTab] = useState('');
@@ -49,6 +51,11 @@ function DashboardSidebar () {
                         </Sidebar.Item>
                     </Link>
                     {currentUser.isAdmin && (
+                        <Link to="/dashboard?tab=dash">
+                            <Sidebar.Item active={tab === 'dash'} icon={HiChartPie} as='div'>Dashboard</Sidebar.Item>
+                        </Link>
+                    )}
+                    {currentUser.isAdmin && (
                         <Link to="/dashboard?tab=posts">
                             <Sidebar.Item active={tab === 'posts'} icon={HiDocumentText} as='div'>
                                 Posts
@@ -60,6 +67,12 @@ function DashboardSidebar () {
                             <Sidebar.Item active={tab === 'users'} icon={FaUsers} as='div'>Users</Sidebar.Item>
                         </Link>
                     )}
+                    {currentUser.isAdmin && (
+                         <Link to="/dashboard?tab=comments">
+                             <Sidebar.Item active={tab === 'comments'} icon={HiAnnotation} as='div'>Comments</Sidebar.Item>
+                         </Link>
+                     )}
+
                     <Sidebar.Item onClick={handleSignout} icon={HiArrowSmRight} className='cursor-pointer'>Sign out</Sidebar.Item> 
                 </Sidebar.ItemGroup>
             </Sidebar.Items>

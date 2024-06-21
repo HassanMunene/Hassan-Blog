@@ -88,3 +88,32 @@ export const deleteComment = async (req, res, next) => {
         next(errorHandler(500, error.message));
     }
 }
+
+export const getComments = async(req, res, next) => {
+    try {
+        const startIndex = parseInt(req.query.startIndex) || 0;
+        const limit = parseInt(req.query.limit) || 8;
+        const sortDirection = req.query.order === "asc" ? 1 : -1;
+        const comments = await Comment.find().sort({updatedAt: sortDirection}).skip(startIndex).limit(limit);
+        const totalComments = await Comment.countDocuments();
+        const now = new Date();
+        const oneMonthAgo = new Date(
+            now.getFullYear(),
+            now.getMonth() - 1,
+            now.getDate()
+        );
+        const lastMonthComments = await Comment.countDocuments({
+            createdAt: {$gte: oneMonthAgo},
+        });
+        res.status(200).json({
+            comments: comments,
+            totalComments: totalComments,
+            lastMonthComments: lastMonthComments,
+            success: true
+        })
+    } catch(error) {
+        console.log(error);
+        next(errorHandler(500, error.message));
+    }
+}
+
