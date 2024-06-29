@@ -67,29 +67,36 @@ Source code and final version: [GitHub Repository](https://github.com/HassanMune
     npm install
     ```
 
-3. **Install dependencies for the frontend**:
+3. **Navigate to frontend folder and Install dependencies for the frontend**:
 
     ```bash
     cd clientSide
     npm install
     ```
 
-4. **Set up environment variables**:
+4. **Set up environment variables for the backend side**:
 
     Create a `.env` file in the backend directory and add the following:
 
-    ```env
+    ```Hassan-Blog/.env
     MONGO_URI=your_mongo_db_connection_string
     JWT_SECRET_KEY=your_jwt_secret
     ```
+5. **Set up environment variable for the frontend side**:
+   
+   you need to have a firebase account that we will be used for storage and authentication
+   
+   ```Hassan-Blog/clientSide/.env
+   VITE_FIREBASE_API_KEY=you firebase api key.
+   ```
 
-5. **Run the application**:
+5. **Run the application both the backend local server and react for frontend**:
 
     ```bash
     # In the backend directory
     npm run dev
 
-    # In the frontend directory
+    # In the frontend directory i.e Hassan-Blog/clientSide
     npm run dev
     ```
 
