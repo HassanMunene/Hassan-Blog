@@ -1,6 +1,6 @@
 # Full Stack Hassan's-Blog Application
 
-Welcome to Hassan's-Blog Application! 🌐 This is a powerful and fully responsive MERN stack web application with cutting-edge features.
+Welcome to Hassan's-Blog Application! This is a powerful and fully responsive MERN stack web application with cutting-edge features.
 
 ## Table of Contents
 
