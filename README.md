@@ -6,23 +6,6 @@ Welcome to Hassan's-Blog Application! This is a powerful and fully responsive ME
  [https://hassan-blog-ldjl.onrender.com/](https://hassan-blog-ldjl.onrender.com/)
  
 
-## Table of Contents
-
-- [Introduction](#introduction)
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Project Structure](#project-structure)
-- [Authentication](#authentication)
-- [Admin Dashboard](#admin-dashboard)
-- [Responsive Design](#responsive-design)
-- [Advanced Search Functionality](#advanced-search-functionality)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Introduction
 
 Hello, and welcome to Hassan's-Blog Application! This project aims to create a feature-rich and fully responsive MERN stack web application. The application leverages the latest versions of React, MongoDB, Node.js, and Express to provide a seamless and interactive blogging experience.
@@ -105,6 +88,4 @@ Source code and final version: [GitHub Repository](https://github.com/HassanMune
     ```
 
     The backend server will run on `http://localhost:3000` and the frontend on `http://localhost:5173`.
-
-## Project Structure
 
